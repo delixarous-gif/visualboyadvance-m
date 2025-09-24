@@ -109,12 +109,12 @@ static uint8_t toBCD(uint8_t value)
 
 void SetGBATime()
 {
-    time_t long_time;
-    time(&long_time); /* Get time as long integer. */
+    time_t now;
+    time(&now); // Always get fresh system time 
 #if __STDC_WANT_SECURE_LIB__
-    localtime_s(&gba_time, &long_time); /* Convert to local time. */
+    localtime_s(&gba_time, &now); // Sync to computer’s local time
 #else
-    gba_time = *localtime(&long_time); /* Convert to local time. */
+    gba_time = *localtime(&now); // Sync to computer’s local time
 #endif
 }
 
@@ -122,11 +122,8 @@ void rtcUpdateTime(int ticks)
 {
     countTicks += ticks;
 
-    if (countTicks > TICKS_PER_SECOND) {
-        countTicks -= TICKS_PER_SECOND;
-        gba_time.tm_sec++;
-        mktime(&gba_time);
-    }
+    // Always keep synced with real-world clock
+    SetGBATime();
 }
 
 bool rtcWrite(uint32_t address, uint16_t value)
